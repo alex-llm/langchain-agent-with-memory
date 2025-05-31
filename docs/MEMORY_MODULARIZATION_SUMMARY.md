@@ -58,7 +58,7 @@ Successfully modularized the scattered memory functionality in the LangChain age
 ## 📁 File Structure
 
 ```
-langchian-agent-with-memory/
+langchain-agent-with-memory/
 ├── memory_manager.py           # Core memory management
 ├── memory_tools.py             # Memory-related tools
 ├── memory_demo.py              # Demonstration script
@@ -266,4 +266,4 @@ The memory system modularization has been successfully completed with:
 - **Improved Architecture**: Clean, modular, extensible design
 - **Resolved Dependencies**: No more Pydantic compatibility issues
 
-The new system provides a solid foundation for building sophisticated LangChain agents with advanced memory capabilities while maintaining simplicity and ease of use. 
+The new system provides a solid foundation for building sophisticated LangChain agents with advanced memory capabilities while maintaining simplicity and ease of use.
