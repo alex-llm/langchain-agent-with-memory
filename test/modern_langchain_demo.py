@@ -1,38 +1,47 @@
 """
 Modern LangChain Agent with Memory Demo
 
-Using the latest LangChain 0.3.x with proper modern patterns and OpenRouter support.
+Using the latest LangChain 0.3.x with modular tools system and OpenRouter support.
 Features:
 - Modern LangChain 0.3.x architecture
+- Modular tool system for better organization and maintainability
 - Memory management with conversation history
-- Interactive tools (calculator, time, memory info)
+- Interactive tools (calculator, time, memory info, text analysis, notes)
 - Number-based conversation flow selection
 - OpenRouter API support
 """
 
 import os
+import sys
 import datetime
 from typing import List, Dict, Any
+from pathlib import Path
 from dotenv import load_dotenv
+
+# Add the project root to the Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
 
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-from langchain_core.tools import tool
 from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
 
-# Import the new memory manager and tools
+# Import the new modular tools system
+from tools import ToolRegistry, get_available_tools, get_tool_info, ToolCategory
 from memory_manager import MemoryManager, create_memory_manager
-from memory_tools import create_basic_memory_info_tool
 
 # Load environment variables
 load_dotenv()
 
 class ModernMemoryAgent:
-    def __init__(self):
-        """Initialize the modern LangChain agent with OpenRouter support"""
+    def __init__(self, 
+                 enabled_categories=None, 
+                 enabled_tools=None, 
+                 enable_user_approval=False):
+        """Initialize the modern LangChain agent with modular tools"""
         
         # Load API configuration
         self.api_key = os.getenv("OPENAI_API_KEY")
@@ -59,27 +68,26 @@ class ModernMemoryAgent:
             }
         )
         
-        # Setup memory using the new memory manager first
+        # Setup memory using the memory manager first
         self.memory_manager = create_memory_manager(store_type="memory")
         
-        # Setup tools (now that memory_manager is available)
-        self.tools = self._create_tools()
+        # Setup modular tools system
+        self.enabled_categories = enabled_categories or ['utility', 'information', 'productivity', 'memory']
+        self.enabled_tools = enabled_tools
+        self.enable_user_approval = enable_user_approval
         
-        # Setup prompt template
-        self.prompt = ChatPromptTemplate.from_messages([
-            ("system", """You are a helpful AI assistant with memory and access to tools. 
-            You can remember our conversation and use tools to help answer questions.
-            
-            Available tools:
-            - calculator: Perform mathematical calculations
-            - get_current_time: Get the current date and time
-            - memory_info: Get information about conversation memory
-            
-            Always be helpful and use your memory of our conversation when relevant."""),
-            MessagesPlaceholder(variable_name="chat_history"),
-            ("human", "{input}"),
-            MessagesPlaceholder(variable_name="agent_scratchpad"),
-        ])
+        # Create tool registry and get tools
+        self.tool_registry = ToolRegistry(
+            memory_manager=self.memory_manager,
+            enable_user_approval=self.enable_user_approval,
+            enabled_categories=self.enabled_categories,
+            enabled_tools=self.enabled_tools
+        )
+        
+        self.tools = self.tool_registry.get_tools()
+        
+        # Setup prompt template with dynamic tool information
+        self.prompt = self._create_prompt_template()
         
         # Create the agent
         self.agent = create_tool_calling_agent(self.llm, self.tools, self.prompt)
@@ -90,34 +98,39 @@ class ModernMemoryAgent:
             self.agent_executor
         )
         
-        print("✅ Modern LangChain agent initialized successfully!")
+        print("✅ Modern LangChain agent with modular tools initialized successfully!")
+        print(f"🔧 Loaded {len(self.tools)} tools from {len(self.enabled_categories)} categories")
     
-    def _create_tools(self):
-        """Create tools for the agent"""
+    def _create_prompt_template(self):
+        """Create prompt template with dynamic tool information"""
+        # Get tool information for the prompt
+        tool_info = self.tool_registry.get_tool_info()
         
-        @tool
-        def calculator(expression: str) -> str:
-            """Calculate mathematical expressions. Input should be a valid mathematical expression."""
-            try:
-                # Basic safety check
-                allowed_chars = set('0123456789+-*/.() ')
-                if all(c in allowed_chars for c in expression):
-                    result = eval(expression)
-                    return f"Calculation result: {result}"
-                else:
-                    return "Error: Only basic mathematical operations are allowed"
-            except Exception as e:
-                return f"Calculation error: {str(e)}"
+        tools_text = "Available tool categories:\n"
+        for category, info in tool_info.items():
+            tools_text += f"- {info['name']}: {info['count']} tools\n"
+            # Show a few example tools from each category
+            for tool_name, tool_config in list(info['tools'].items())[:3]:
+                tools_text += f"  • {tool_name}: {tool_config['description']}\n"
+            if info['count'] > 3:
+                tools_text += f"  ... and {info['count'] - 3} more tools\n"
         
-        @tool
-        def get_current_time() -> str:
-            """Get the current date and time."""
-            return f"Current time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
+        approval_note = ""
+        if self.enable_user_approval:
+            approval_note = "\nNote: Some tools require user approval for security."
         
-        # Create memory info tool using the memory manager
-        memory_info = create_basic_memory_info_tool(self.memory_manager)
-        
-        return [calculator, get_current_time, memory_info]
+        return ChatPromptTemplate.from_messages([
+            ("system", f"""You are a helpful AI assistant with memory and access to tools. 
+            You can remember our conversation and use tools to help answer questions.
+            
+            {tools_text}
+            {approval_note}
+            
+            Always be helpful and use your memory of our conversation when relevant."""),
+            MessagesPlaceholder(variable_name="chat_history"),
+            ("human", "{{input}}"),
+            MessagesPlaceholder(variable_name="agent_scratchpad"),
+        ])
     
     def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
         """Get or create session history - delegated to memory manager"""
@@ -165,35 +178,54 @@ class ModernMemoryAgent:
             result += f"{i}. {role}: {content}\n"
         
         return result
+    
+    def get_tool_statistics(self) -> Dict[str, Any]:
+        """Get statistics about loaded tools"""
+        return self.tool_registry.get_statistics()
+    
+    def get_tool_info(self) -> Dict[str, Any]:
+        """Get information about available tools"""
+        return self.tool_registry.get_tool_info()
 
 def run_numbered_demo():
-    """Run demo with numbered conversation options"""
+    """Run demo with numbered conversation options using modular tools"""
     
-    print("🧠 Modern LangChain Agent - Number Selection Demo")
+    print("🧠 Modern LangChain Agent - Modular Tools Demo")
     print("=" * 60)
-    print("💡 Just enter a number to try the conversation flow!")
+    print("💡 Now using the new modular tool system!")
     print()
     
-    # Predefined conversation options
+    # Enhanced conversation options to showcase more tools
     conversation_options = [
         "Hi, my name is John and I'm 25 years old",
         "What time is it?",
         "Calculate 15 * 23", 
-        "What's my name and age?",
-        "What was the result of my calculation?",
+        "Take a note: Meeting with team tomorrow at 3 PM",
+        "What's my name and what note did I just save?",
         "How many messages do we have?",
-        "Calculate 100 / 4",
-        "What do you know about me?",
-        "What's today's date?",
-        "Remember: I like programming"
+        "Analyze this text: The quick brown fox jumps over the lazy dog",
+        "What do you know about me so far?",
+        "Show me my saved notes",
+        "Remember: I like programming and AI"
     ]
     
-    # Initialize agent
-    agent = ModernMemoryAgent()
+    # Initialize agent with modular tools
+    agent = ModernMemoryAgent(
+        enabled_categories=['utility', 'information', 'productivity', 'memory'],
+        enable_user_approval=False  # Disable for demo simplicity
+    )
     
     if not agent.api_available:
         print("\n⚠️  Agent initialization failed. Please check your API configuration.")
         return
+    
+    # Show tool statistics
+    stats = agent.get_tool_statistics()
+    print(f"📊 Tool Statistics:")
+    print(f"  • Total tools: {stats['total_tools']}")
+    print(f"  • Enabled tools: {stats['enabled_tools']}")
+    print(f"  • Categories: {', '.join(stats['categories'].keys())}")
+    print()
     
     session_id = "numbered_demo"
     
@@ -211,6 +243,8 @@ def run_numbered_demo():
         print("11. Show memory")
         print("12. Clear memory") 
         print("13. Custom question")
+        print("14. Show tool information")
+        print("15. Tool statistics")
         print("99. Auto-run first 5 questions")
         print(" 0. Exit")
         
@@ -242,6 +276,30 @@ def run_numbered_demo():
                     print("-" * 50)
                     response = agent.chat(custom_input, session_id)
                     print(f"✅ Response: {response}")
+                continue
+            
+            elif choice == "14":
+                print("\n🔧 Tool Information:")
+                print("-" * 20)
+                tool_info = agent.get_tool_info()
+                for category, info in tool_info.items():
+                    print(f"\n📂 {info['name']} ({info['count']} tools):")
+                    for tool_name, tool_config in info['tools'].items():
+                        approval_str = "🔒" if tool_config['requires_approval'] else "✅"
+                        print(f"  {approval_str} {tool_name}: {tool_config['description']}")
+                continue
+            
+            elif choice == "15":
+                print("\n📊 Tool Statistics:")
+                print("-" * 20)
+                stats = agent.get_tool_statistics()
+                for key, value in stats.items():
+                    if isinstance(value, dict):
+                        print(f"• {key}:")
+                        for sub_key, sub_value in value.items():
+                            print(f"    - {sub_key}: {sub_value}")
+                    else:
+                        print(f"• {key}: {value}")
                 continue
             
             elif choice == "99":
@@ -290,30 +348,39 @@ def run_numbered_demo():
             print(f"❌ Error: {str(e)}")
 
 def run_traditional_demo():
-    """Run the traditional interactive demo"""
+    """Run the traditional interactive demo with modular tools"""
     
-    print("🧠 Modern LangChain Agent - Traditional Demo")
+    print("🧠 Modern LangChain Agent - Traditional Demo (Modular Tools)")
     print("=" * 60)
     print("Type your questions directly or use commands:")
     print("- 'show memory' to see conversation history")
+    print("- 'show tools' to see available tools")
     print("- 'clear' to clear memory")
     print("- 'quit' to exit")
     print("=" * 60)
     
-    # Create agent
-    agent = ModernMemoryAgent()
+    # Create agent with modular tools
+    agent = ModernMemoryAgent(
+        enabled_categories=['utility', 'information', 'productivity', 'memory'],
+        enable_user_approval=False
+    )
     
     if not agent.api_available:
         print("\n⚠️  Agent initialization failed. Please check your API configuration.")
         return
     
-    # Suggested conversation flow
-    print("\n💡 Try this conversation flow:")
+    # Show tool statistics
+    stats = agent.get_tool_statistics()
+    print(f"\n🔧 Loaded {stats['enabled_tools']} tools from {len(stats['categories'])} categories")
+    
+    # Enhanced conversation flow suggestions
+    print("\n💡 Try this enhanced conversation flow:")
     print("1. 'Hi, my name is John and I'm 25 years old'")
     print("2. 'What time is it?'")
     print("3. 'Calculate 15 * 23'")
-    print("4. 'What's my name and age?'")
-    print("5. 'What was the result of my calculation?'")
+    print("4. 'Take a note: Buy groceries tomorrow'")
+    print("5. 'Analyze this text: Hello world, how are you?'")
+    print("6. 'What's my name and what note did I save?'")
     print()
     
     session_id = "traditional_demo"
@@ -336,6 +403,16 @@ def run_traditional_demo():
                 print(f"📝 {result}")
                 continue
             
+            if user_input.lower() in ['show tools', 'tools']:
+                print("🔧 Available Tools:")
+                tool_info = agent.get_tool_info()
+                for category, info in tool_info.items():
+                    print(f"\n📂 {info['name']} ({info['count']} tools):")
+                    for tool_name, tool_config in info['tools'].items():
+                        approval_str = "🔒" if tool_config['requires_approval'] else "✅"
+                        print(f"  {approval_str} {tool_name}: {tool_config['description']}")
+                continue
+            
             if not user_input:
                 continue
             
@@ -354,13 +431,26 @@ def run_traditional_demo():
 def main():
     """Main function with demo mode selection"""
     
-    print("🧠 Modern LangChain Agent Demo")
-    print("=" * 50)
+    print("🧠 Modern LangChain Agent Demo (Modular Tools System)")
+    print("=" * 60)
+    
+    # Show available tools overview
+    try:
+        from tools import get_tool_info
+        tool_info = get_tool_info()
+        total_tools = sum(info['count'] for info in tool_info.values())
+        print(f"📊 Available Tools: {total_tools} tools across {len(tool_info)} categories")
+        for category, info in tool_info.items():
+            print(f"  • {info['name']}: {info['count']} tools")
+    except Exception as e:
+        print(f"⚠️ Could not load tool information: {str(e)}")
+    
+    print("\n" + "="*60)
     print("Choose your demo mode:")
     print("1. 💡 Number Selection Demo (Recommended)")
     print("2. 💬 Traditional Chat Demo")
     print("0. Exit")
-    print("-" * 50)
+    print("-" * 60)
     
     while True:
         try:

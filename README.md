@@ -1,530 +1,171 @@
-# 🧠 Advanced LangChain Agent with Memory Demo
+# 🧠 LangChain Agent with Memory
 
-A comprehensive demonstration of LangChain agents with memory using **LangChain 0.3.x**. This project showcases how to build conversational AI agents with advanced features including streaming responses, reasoning visualization, and extensive configuration options.
+一个基于 LangChain 0.3.x 的现代化智能代理系统，具有完整的记忆管理和模块化工具架构。
 
-## 🌟 Key Features
+## 🎯 项目特色
 
-### Core Features
-- **Latest LangChain 0.3.x**: Uses modern LangChain patterns and APIs
-- **Number-Based Interaction**: Just enter numbers to try conversation flows!
-- **OpenRouter Support**: Compatible with OpenRouter API for multiple model access
-- **Memory Management**: Persistent conversation history with multiple memory types
-- **Interactive Tools**: Calculator, time checker, file operations, web search, and more
+- **🔧 模块化工具系统**: 19+ 个工具，支持 7 个功能类别
+- **🧠 智能记忆管理**: 多种存储方式，会话隔离，持久化支持
+- **🔒 安全审批机制**: 敏感操作需要用户确认
+- **🌐 Web 界面**: Streamlit 支持的交互式界面
+- **📱 多种交互方式**: 命令行、Web界面、API等
 
-### 🆕 Advanced Features
-- **🌊 Streaming Responses**: Real-time text generation with typewriter effect
-- **🧠 Agent Reasoning Display**: Visualize AI thinking process and tool usage
-- **🤖 Multiple Agent Types**: Tool Calling, ReAct, and Structured Chat agents
-- **🛡️ User Approval System**: Manual confirmation for sensitive operations
-- **🔌 MCP Support**: Model Context Protocol for external service integration
-- **📋 Agent Presets**: Pre-configured agents for different use cases
-- **💾 Configuration Management**: Export/import agent configurations
+## 🚀 快速开始
 
-### Interface Options
-- **Number Selection Demo**: Quick testing with pre-defined options
-- **Traditional Chat**: Natural conversation flow
-- **Advanced Streamlit Web App**: Full-featured web interface with streaming
-
-## 🆕 What's New in This Version
-
-### Streaming & Reasoning
-- **Real-time Streaming**: See AI responses as they're generated
-- **Thinking Process**: Watch the agent's step-by-step reasoning
-- **Tool Call Visualization**: Monitor tool execution in real-time
-- **Debug Mode**: Full transparency into agent decision-making
-
-### Agent Configuration
-- **Multiple Agent Types**: Choose between different reasoning approaches
-- **Custom System Prompts**: Fully customize agent behavior
-- **Security Controls**: User approval for sensitive operations
-- **Preset Configurations**: Quick setup for common use cases
-
-### MCP Integration
-- **External Services**: Connect to Model Context Protocol servers
-- **Dynamic Tools**: Add tools from external sources
-- **Extensible Architecture**: Easy integration with custom services
-
-## 🚀 Quick Start
-
-### Prerequisites
-
-- Python 3.8+
-- OpenAI API key or OpenRouter API key
-
-### Installation
-
-1. **Clone or download this repository**
-
-2. **Create and activate virtual environment**:
-   ```bash
-   python -m venv .venv
-   
-   # Windows
-   .\.venv\Scripts\Activate.ps1
-   
-   # Linux/Mac
-   source .venv/bin/activate
-   ```
-
-3. **Install dependencies**:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Set up your API key**:
-   
-   **Option A: OpenRouter (Recommended)**
-   ```bash
-   # Create a .env file
-   OPENAI_API_KEY=sk-or-v1-your-openrouter-key
-   OPENAI_API_BASE=https://openrouter.ai/api/v1
-   ```
-   
-   **Option B: OpenAI Direct**
-   ```bash
-   # Create a .env file
-   OPENAI_API_KEY=sk-your-openai-key-here
-   ```
-
-### Running the Demo
-
-#### 🎯 Main Demo (Classic)
+### 安装依赖
 ```bash
-python modern_langchain_demo.py
+pip install -r requirements.txt
 ```
 
-This gives you two options:
-1. **💡 Number Selection Demo** - Just enter numbers to try conversation flows!
-2. **💬 Traditional Chat Demo** - Type questions directly
-
-#### 🌐 Advanced Streamlit Web Interface (Recommended)
+### 配置环境
 ```bash
-streamlit run streamlit_demo.py
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑 .env 文件，添加您的 API 密钥
+# OPENROUTER_API_KEY=your_api_key_here
 ```
 
-**Features:**
-- 🌊 **Streaming responses** with real-time generation
-- 🧠 **Agent reasoning display** showing thinking process
-- 🤖 **Multiple agent types** (Tool Calling, ReAct, Structured Chat)
-- 🔧 **Advanced tool configuration** with approval system
-- 🔌 **MCP server integration** for external services
-- 📋 **Agent presets** for quick setup
+### 运行演示
 
-## 🎛️ Advanced Configuration
-
-### Agent Types
-
-#### 🔧 Tool Calling Agent
-- **Best for**: Most use cases, reliable tool usage
-- **Features**: Direct tool invocation, efficient execution
-- **Streaming**: ✅ Supported
-
-#### 🤔 ReAct Agent
-- **Best for**: Complex reasoning tasks, debugging
-- **Features**: Step-by-step thinking, visible reasoning process
-- **Streaming**: ✅ Supported with full reasoning display
-
-#### 💬 Structured Chat Agent
-- **Best for**: Conversational interfaces, chat applications
-- **Features**: Structured responses, conversation flow
-- **Streaming**: ✅ Supported
-
-### Agent Presets
-
-#### 🤖 General Assistant
-- **Tools**: Calculator, Time, Notes, Text Analyzer
-- **Security**: Standard mode
-- **Best for**: General purpose assistance
-
-#### 🔬 Research Agent
-- **Tools**: Web Search, Text Analyzer, Notes
-- **Security**: User approval required
-- **Features**: Step-by-step reasoning display
-- **Best for**: Research and analysis tasks
-
-#### 🛡️ Safe Assistant
-- **Tools**: Basic tools only
-- **Security**: User approval for all actions
-- **Best for**: Secure environments
-
-#### ⚙️ System Admin
-- **Tools**: File Operations, Calculator, Text Analyzer
-- **Security**: User approval required
-- **Best for**: System administration tasks
-
-#### 🐛 Debug Agent
-- **Tools**: Calculator, Text Analyzer, Time
-- **Features**: Full reasoning visibility
-- **Best for**: Understanding agent behavior
-
-### Streaming Features
-
-#### 🌊 Real-time Streaming
-- **Character-by-character**: See text as it's generated
-- **Typewriter effect**: Smooth text appearance
-- **Configurable**: Can be enabled/disabled
-- **Fallback**: Simulated streaming for non-streaming models
-
-#### 🧠 Reasoning Display
-- **Thinking Steps**: See LLM reasoning process
-- **Tool Calls**: Monitor tool execution
-- **Decision Process**: Understand agent choices
-- **Error Handling**: Clear error visualization
-
-### Security Features
-
-#### 🛡️ User Approval System
-- **Sensitive Operations**: Manual confirmation required
-- **Real-time Approval**: Approve/deny actions as they occur
-- **Action Tracking**: Full audit trail
-- **Configurable**: Per-tool approval settings
-
-#### 🔒 Safe Tool Execution
-- **Input Validation**: Secure parameter checking
-- **Sandboxed Operations**: Isolated execution environment
-- **Error Recovery**: Graceful failure handling
-
-## 🆕 Enhanced Approval System (v2.0)
-
-### 🎯 Key Improvements
-
-The approval system has been significantly enhanced with a modern, user-friendly interface:
-
-#### ✅ **Enhanced Button Interface**
-- **Green Approve Button**: Click to approve and execute operations
-- **Red Deny Button**: Click to reject operations
-- **Visual Effects**: Gradient colors, hover animations, and shadow effects
-- **Responsive Design**: Works on all screen sizes
-
-#### 📊 **Real-time Statistics Panel**
-- **Pending**: Shows current pending approvals count
-- **Approved**: Displays approved operations count  
-- **Denied**: Shows rejected operations count
-
-#### 🚀 **Batch Operations**
-- **Approve All**: One-click approval for all pending operations
-- **Deny All**: One-click rejection for all pending operations
-- **Clear Processed**: Clean up completed approval records
-
-#### 🔍 **Smart Risk Assessment**
-Automatic operation analysis with risk level indicators:
-
-- 🟢 **Low Risk**: Mathematical calculations (usually safe)
-- 🟡 **Medium Risk**: File operations, web searches (use caution)
-- 🟠 **High Risk**: External service calls (careful review needed)
-- ⚪ **Unknown Risk**: Unrecognized operation types
-
-#### 💫 **Improved User Experience**
-- **Card Layout**: Each approval has its own styled card
-- **Color Coding**: Different colors for different states
-- **Interactive Help**: Tooltips and guidance for each button
-- **Processing History**: Collapsible view of completed approvals
-
-### 🚀 How to Use the Approval System
-
-1. **Enable User Approval** in Agent Configuration
-2. **Review Operations** in the "⏳ Pending Approvals" section
-3. **Check Risk Level** shown for each operation
-4. **Click Approve/Deny** buttons to make decisions
-5. **Use Batch Operations** for multiple similar requests
-6. **View History** in the expandable processed operations section
-
-### 🧪 Testing the Approval System
-
-Run the approval test demo:
+#### 🚀 推荐方式（统一入口）
 ```bash
-streamlit run test_approval_demo.py
+# 快速开始模式（推荐）
+python src/main.py --quick-start
+
+# 直接启动 Web 界面
+python src/main.py --web
+
+# 交互式菜单模式
+python src/main.py
 ```
 
-This provides a dedicated interface to test all approval features including:
-- Adding different types of test operations
-- Testing batch approval functions
-- Verifying risk level detection
-- Checking approval history functionality
-
-## 💡 Number Selection Demo
-
-The classic feature! Just run the demo and enter numbers:
-
-```
-📋 Conversation Options:
- 1. Hi, my name is John and I'm 25 years old
- 2. What time is it?
- 3. Calculate 15 * 23
- 4. What's my name and age?
- 5. What was the result of my calculation?
- 6. How many messages do we have?
- 7. Calculate 100 / 4
- 8. What do you know about me?
- 9. What's today's date?
-10. Remember: I like programming
-
-🔧 Commands:
-11. Show memory
-12. Clear memory
-13. Custom question
-99. Auto-run first 5 questions
- 0. Exit
-
-👆 Enter number: 1
-```
-
-## 🎯 Suggested Conversation Flow
-
-Try this sequence to see memory in action:
-
-1. **Enter `1`**: "Hi, my name is John and I'm 25 years old"
-2. **Enter `2`**: "What time is it?"
-3. **Enter `3`**: "Calculate 15 * 23"
-4. **Enter `4`**: "What's my name and age?"
-5. **Enter `5`**: "What was the result of my calculation?"
-
-Or just **enter `99`** to auto-run all these questions!
-
-## 🛠️ Available Tools
-
-### Standard Tools
-
-#### 🧮 Calculator
-- **Purpose**: Perform mathematical calculations
-- **Security**: Requires approval in secure mode
-- **Usage**: "Calculate 15 * 23"
-- **Safety**: Only allows basic mathematical operations
-
-#### 🕐 Time Checker
-- **Purpose**: Get current date and time
-- **Security**: No approval required
-- **Usage**: "What time is it?"
-
-#### 📝 Note Taker
-- **Purpose**: Save and retrieve notes
-- **Security**: No approval required
-- **Usage**: "Take a note: Buy groceries"
-
-#### 📊 Text Analyzer
-- **Purpose**: Analyze text statistics
-- **Security**: No approval required
-- **Usage**: "Analyze this text: Hello world"
-
-### Advanced Tools
-
-#### 📁 File Operations
-- **Purpose**: Read, write, and list files (simulated)
-- **Security**: Requires approval
-- **Usage**: "Read file: data.txt"
-- **Note**: Simulated for demo purposes
-
-#### 🔍 Web Search
-- **Purpose**: Search the web for information (simulated)
-- **Security**: Requires approval
-- **Usage**: "Search for: latest AI news"
-- **Note**: Simulated for demo purposes
-
-#### 🌤️ Weather Info
-- **Purpose**: Get weather information (simulated)
-- **Security**: No approval required
-- **Usage**: "What's the weather in Tokyo?"
-
-#### 🎲 Random Fact
-- **Purpose**: Get interesting random facts
-- **Security**: No approval required
-- **Usage**: "Tell me a random fact"
-
-### MCP Tools
-
-#### 🔌 External Services
-- **Purpose**: Connect to Model Context Protocol servers
-- **Configuration**: JSON-based tool definitions
-- **Security**: Configurable approval requirements
-- **Usage**: Depends on configured MCP server
-
-## 🔧 Configuration
-
-### OpenRouter Configuration
-
-The demo supports OpenRouter for access to multiple models:
-
+#### 🎯 直接运行方式
 ```bash
-# .env file
-OPENAI_API_KEY=sk-or-v1-your-openrouter-key
-OPENAI_API_BASE=https://openrouter.ai/api/v1
+# 命令行演示
+python test/modern_langchain_demo.py
+
+# Web 界面演示
+streamlit run test/streamlit_demo.py
+
+# 工具系统示例
+python test/tools_example.py
+
+# 内存系统示例  
+python test/memory_example.py
 ```
 
-### Streaming Configuration
-
-```bash
-# Enable streaming responses
-ENABLE_STREAMING=true
-
-# Show agent reasoning process
-SHOW_REASONING=true
-```
-
-### MCP Server Configuration
-
-Example MCP server configuration:
-
-```json
-{
-  "name": "my-service",
-  "url": "http://localhost:3000",
-  "description": "Custom service integration",
-  "enabled": true,
-  "tools": [
-    {
-      "name": "search",
-      "description": "Search for information"
-    },
-    {
-      "name": "analyze",
-      "description": "Analyze data"
-    }
-  ]
-}
-```
-
-### Memory Management
-
-- **Command 11**: Show conversation history
-- **Command 12**: Clear memory and start fresh
-- **Command 13**: Enter custom questions
-- **Command 99**: Auto-run the suggested conversation flow
-
-## 📁 Project Structure
+## 📁 项目结构
 
 ```
 langchain-agent-with-memory/
-├── requirements.txt              # Python dependencies (LangChain 0.3.x)
-├── .env                         # Environment variables (API keys)
-├── README.md                    # This file
-├── VERSION_INFO.md              # Version history and migration notes
-├── modern_langchain_demo.py     # 🌟 Classic demo with number selection
-├── streamlit_demo.py           # 🚀 Advanced web interface with streaming
-├── test_demo.py                # 🧪 Test script to verify setup
-└── __pycache__/                # Python cache files
+├── 📦 src/                     # 源代码目录
+│   ├── main.py                 # 🚀 项目主入口文件
+│   └── README.md               # 源代码说明
+├── 📚 docs/                    # 项目文档
+│   ├── README.md               # 完整的项目说明
+│   ├── INDEX.md                # 文档索引
+│   └── *.md                    # 各种指南和说明
+├── 🧪 test/                    # 测试和示例
+│   ├── README.md               # 测试文件说明
+│   ├── *_demo.py              # 演示脚本
+│   ├── test_*.py              # 测试文件
+│   └── *_example.py           # 学习示例
+├── 🔧 tools/                   # 模块化工具系统
+│   ├── __init__.py            # 工具注册中心
+│   ├── registry.py            # 工具注册器
+│   ├── basic_tools.py         # 基础工具
+│   ├── advanced_tools.py      # 高级工具
+│   └── memory_tools_module.py # 内存工具
+├── 🧠 memory/                  # 记忆管理系统
+│   ├── __init__.py            # 模块接口
+│   ├── manager.py             # 内存管理器
+│   └── tools.py               # 内存工具
+├── README.md                   # 项目概览
+├── memory_manager.py           # 向后兼容包装器
+├── memory_tools.py             # 向后兼容包装器
+└── requirements.txt            # Python 依赖
 ```
 
-## 🎨 Demo Modes
+## 💡 核心功能
 
-### 1. Number Selection Demo (Classic)
-- **Perfect for**: Quick testing and demonstrations
-- **Features**: Pre-defined conversation options, just enter numbers
-- **Best for**: First-time users and showcasing memory capabilities
+### 🔧 模块化工具系统
+- **7 个工具类别**: UTILITY, INFORMATION, PRODUCTIVITY, COMMUNICATION, SYSTEM, ENTERTAINMENT, MEMORY
+- **19+ 专用工具**: 计算器、时间工具、文本分析、网页搜索等
+- **安全控制**: 风险评估和用户审批机制
+- **动态加载**: 支持按类别或工具名选择性加载
 
-### 2. Traditional Chat Demo
-- **Perfect for**: Natural conversation flow
-- **Features**: Type questions directly, full conversational experience
-- **Best for**: Extended conversations and custom interactions
+### 🧠 智能记忆管理
+- **多种存储**: 内存存储、文件存储
+- **会话隔离**: 独立的对话会话管理
+- **统计分析**: 详细的内存使用统计
+- **数据导入导出**: JSON 格式的会话数据备份
 
-### 3. Advanced Streamlit Web Interface (Recommended)
-- **Perfect for**: Full-featured experience with all advanced capabilities
-- **Features**: 
-  - 🌊 Streaming responses with real-time generation
-  - 🧠 Agent reasoning process visualization
-  - 🤖 Multiple agent types and configurations
-  - 🔧 Advanced tool management
-  - 🔌 MCP server integration
-  - 🛡️ Security controls and user approval
-  - 📋 Agent presets and configuration management
-- **Best for**: Exploring all features and advanced use cases
+### 🌐 多种交互方式
+- **命令行界面**: 传统终端交互
+- **Web 界面**: Streamlit 支持的现代 UI
+- **API 集成**: 支持多种 AI 模型提供商
 
-## 🌊 Streaming Experience
+## 📖 详细文档
 
-### Real-time Features
-- **Live Text Generation**: See responses as they're typed
-- **Thinking Process**: Watch the agent reason through problems
-- **Tool Execution**: Monitor tool calls in real-time
-- **Error Handling**: Immediate feedback on issues
+- **[完整项目文档](docs/README.md)** - 详细的安装、配置和使用指南
+- **[文档索引](docs/INDEX.md)** - 所有文档的分类索引
+- **[工具系统指南](docs/TOOLS_MODULARIZATION_GUIDE.md)** - 工具系统详细说明
+- **[内存系统指南](docs/MEMORY_SYSTEM_GUIDE.md)** - 内存管理详细说明
+- **[测试和示例](test/README.md)** - 所有测试文件和示例的说明
 
-### Reasoning Visualization
-- **Step-by-Step**: Clear breakdown of agent thinking
-- **Tool Decisions**: See why tools are chosen
-- **Input/Output**: Full transparency of tool usage
-- **Debug Mode**: Complete execution trace
+## 🧪 测试和示例
 
-## 🐛 Troubleshooting
+```bash
+# 环境测试
+python test/test_env.py
 
-### Common Issues
+# 基础功能演示
+python test/modern_langchain_demo.py
 
-1. **"Please set your OPENAI_API_KEY"**
-   - Make sure your API key is set in the `.env` file
-   - Verify the API key is valid and has credits
+# 内存系统测试
+python test/test_memory_system.py
 
-2. **Import errors**
-   - Run `pip install -r requirements.txt`
-   - Make sure you're using Python 3.8+
-   - Ensure you have the latest LangChain 0.3.x versions
+# 工具系统示例
+python test/tools_example.py
+```
 
-3. **"Rate limit exceeded"**
-   - You've hit API rate limits
-   - Wait a moment and try again
-   - Consider using OpenRouter for better rate limits
+## 🔧 开发者指南
 
-4. **Streamlit issues**
-   - Make sure Streamlit is installed: `pip install streamlit`
-   - Try running with: `python -m streamlit run streamlit_demo.py`
+### 添加新工具
+1. 在 `tools/` 目录中创建新的工具模块
+2. 在 `tools/registry.py` 中注册新工具
+3. 更新相关文档和测试
 
-5. **Streaming not working**
-   - Check if your model supports streaming
-   - Try disabling streaming in settings
-   - Verify your API configuration
+### 扩展内存系统
+1. 在 `memory/` 目录中扩展存储类型
+2. 实现 `BaseMemoryStore` 接口
+3. 更新内存管理器配置
 
-### Performance Tips
+### 贡献代码
+1. Fork 项目并创建分支
+2. 添加测试用例
+3. 更新相关文档
+4. 提交 Pull Request
 
-- Use **OpenRouter** for access to multiple models and better pricing
-- The **Number Selection Demo** is fastest for testing
-- Use **Command 99** to quickly test the full conversation flow
-- **Command 12** to clear memory if responses become inconsistent
-- Enable **streaming** for better user experience
-- Use **ReAct agent** with reasoning display for debugging
+## 📊 版本信息
 
-## 🔒 Security Notes
+- **当前版本**: 2.0.0 (模块化版本)
+- **LangChain**: 0.3.x
+- **Python**: 3.8+
+- **更新历史**: 查看 [docs/VERSION_INFO.md](docs/VERSION_INFO.md)
 
-- Never commit your API keys to version control
-- The calculator tool uses `eval()` with basic safety checks
-- In production, implement more robust input validation
-- OpenRouter provides additional security and monitoring features
-- Use **user approval** for sensitive operations
-- MCP servers should be properly secured and validated
+## 🤝 获取帮助
 
-## 🆕 LangChain 0.3.x Migration Notes
+- **📚 查看文档**: [docs/](docs/) 目录包含详细指南
+- **🧪 运行示例**: [test/](test/) 目录包含各种示例
+- **🐛 报告问题**: 在 GitHub Issues 中提交问题
+- **💡 功能建议**: 查看 [docs/IMPROVEMENTS.md](docs/IMPROVEMENTS.md)
 
-Key improvements from older versions:
+## 📄 许可证
 
-1. **Agent Creation**: Uses `create_tool_calling_agent` instead of deprecated methods
-2. **Memory Integration**: Uses `RunnableWithMessageHistory` for better memory management
-3. **Tool Definition**: Uses `@tool` decorator for simpler tool creation
-4. **Prompt Templates**: Uses `ChatPromptTemplate` with `MessagesPlaceholder`
-5. **Streaming Support**: Native streaming capabilities with callback handlers
-6. **Better Error Handling**: Improved error messages and recovery
-7. **Agent Types**: Support for multiple agent architectures
-8. **Callback System**: Enhanced monitoring and debugging capabilities
-
-## 🤝 Contributing
-
-Feel free to:
-- Add new conversation options to the number selection demo
-- Implement additional tools and MCP integrations
-- Improve the streaming and reasoning visualization
-- Add support for more LLM providers
-- Enhance the user interface and experience
-- Contribute new agent presets and configurations
-
-## 📚 Resources
-
-- [LangChain 0.3.x Documentation](https://python.langchain.com/)
-- [OpenRouter API Documentation](https://openrouter.ai/docs)
-- [LangChain Agent Documentation](https://python.langchain.com/docs/modules/agents/)
-- [LangChain Memory Documentation](https://python.langchain.com/docs/modules/memory/)
-- [LangChain Streaming Documentation](https://python.langchain.com/docs/modules/model_io/llms/streaming_llm)
-- [Model Context Protocol (MCP)](https://modelcontextprotocol.io/)
-
-## 📄 License
-
-This project is open source and available under the MIT License.
+本项目基于 MIT 许可证开源。详见 LICENSE 文件。
 
 ---
 
-**Happy coding! 🚀**
-
-**💡 Pro Tip**: Start with the Advanced Streamlit Interface - run `streamlit run streamlit_demo.py` to experience all the new features including streaming responses and agent reasoning visualization! 
+**💡 开始探索**: 推荐从 `streamlit run test/streamlit_demo.py` 开始体验完整功能！ 
