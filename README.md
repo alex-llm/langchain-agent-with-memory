@@ -61,26 +61,37 @@ python test/memory_example.py
 langchain-agent-with-memory/
 ├── 📦 src/                     # 源代码目录
 │   ├── main.py                 # 🚀 项目主入口文件
-│   └── README.md               # 源代码说明
+│   ├── README.md               # 源代码说明
+│   └── legacy/                 # 旧版代码
+│       ├── memory_manager.py   # 旧版
+│
+│       ├── memory_tools.py      # 旧版内存工具
+│       └── README.md           # 旧版说明
 ├── 📚 docs/                    # 项目文档
-│   ├── README.md               # 完整的项目说明
-│   ├── INDEX.md                # 文档索引
-│   └── *.md                    # 各种指南和说明
+│   ├── APPROVAL_*.md           # 审批系统文档
+│   ├── MEMORY_*.md             # 内存系统文档
+│   ├── TOOLS_*.md              # 工具系统文档
+│   ├── *.md                    # 其他指南和说明
+│   ├── README.md               # 完整文档
+│   └── INDEX.md                # 文档索引
 ├── 🧪 test/                    # 测试和示例
-│   ├── README.md               # 测试文件说明
-│   ├── *_demo.py              # 演示脚本
-│   ├── test_*.py              # 测试文件
-│   └── *_example.py           # 学习示例
+│   ├── *_demo.py               # 演示脚本
+│   ├── test_*.py               # 测试文件
+│   ├── *_example.py            # 学习示例
+│   ├── debug_agent.py          # 调试工具
+│   └── README.md               # 测试说明
 ├── 🔧 tools/                   # 模块化工具系统
 │   ├── __init__.py            # 工具注册中心
 │   ├── registry.py            # 工具注册器
 │   ├── basic_tools.py         # 基础工具
 │   ├── advanced_tools.py      # 高级工具
-│   └── memory_tools_module.py # 内存工具
+│   ├── memory_tools_module.py # 内存工具
+│   └── mcp_tools.py           # MCP工具集成
 ├── 🧠 memory/                  # 记忆管理系统
 │   ├── __init__.py            # 模块接口
 │   ├── manager.py             # 内存管理器
 │   └── tools.py               # 内存工具
+├── demo_memory_storage/        # 记忆存储示例
 ├── README.md                   # 项目概览
 ├── memory_manager.py           # 向后兼容包装器
 ├── memory_tools.py             # 向后兼容包装器
@@ -168,4 +179,4 @@ python test/tools_example.py
 
 ---
 
-**💡 开始探索**: 推荐从 `streamlit run test/streamlit_demo.py` 开始体验完整功能！ 
+**💡 开始探索**: 推荐从 `streamlit run test/streamlit_demo.py` 开始体验完整功能！
