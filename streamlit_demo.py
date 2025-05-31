@@ -27,7 +27,6 @@ from langchain.agents import create_tool_calling_agent, AgentExecutor, create_re
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder, PromptTemplate
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
 from langchain.agents.agent_types import AgentType
 from langchain_core.callbacks.base import BaseCallbackHandler
 from langchain_core.outputs import LLMResult
@@ -35,6 +34,9 @@ from langchain_core.messages import BaseMessage
 
 # Load environment variables
 load_dotenv()
+
+# Import the new memory manager
+from memory_manager import MemoryManager, create_memory_manager
 
 # Page configuration
 st.set_page_config(
@@ -234,15 +236,18 @@ class AdvancedStreamlitMemoryAgent:
         # Setup agent based on type
         self._setup_agent()
         
-        # Setup memory store
-        self.store = {}
+        # Setup memory using the new memory manager
+        self.memory_manager = create_memory_manager(
+            store_type="file" if enable_streaming else "memory",
+            storage_dir="streamlit_memory_storage"
+        )
         
         # Configure RunnableWithMessageHistory based on agent type
         if self.agent_type == "react" and self.tools:
             # Only react agents need custom history handling for PromptTemplate
             def agent_with_history_wrapper(inputs, config=None):
                 session_id = config.get("configurable", {}).get("session_id", "default") if config else "default"
-                session_history = self._get_session_history(session_id)
+                session_history = self.memory_manager.get_session_history(session_id)
                 
                 # Convert message history to string format for PromptTemplate agents
                 chat_history_str = ""
@@ -273,11 +278,8 @@ class AdvancedStreamlitMemoryAgent:
             self.agent_with_chat_history = RunnableLambda(agent_with_history_wrapper)
         else:
             # For tool_calling and structured_chat agents and simple chat, use standard message history
-            self.agent_with_chat_history = RunnableWithMessageHistory(
-                self.agent_executor,
-                self._get_session_history,
-                input_messages_key="input",
-                history_messages_key="chat_history",
+            self.agent_with_chat_history = self.memory_manager.create_runnable_with_history(
+                self.agent_executor
             )
     
     def _create_tools(self):
@@ -1053,10 +1055,8 @@ NEVER call the same tool multiple times when you see APPROVAL_REQUIRED.
         return f"我已经提交了{action_description}以供批准。请检查上面的批准部分以批准或拒绝此操作。"
     
     def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        """Get or create session history"""
-        if session_id not in self.store:
-            self.store[session_id] = ChatMessageHistory()
-        return self.store[session_id]
+        """Get or create session history - delegated to memory manager"""
+        return self.memory_manager.get_session_history(session_id)
     
     def chat_stream(self, message: str, session_id: str = "default", reasoning_container=None):
         """Send a message to the agent and get a streaming response"""
@@ -1123,14 +1123,18 @@ NEVER call the same tool multiple times when you see APPROVAL_REQUIRED.
     
     def clear_memory(self, session_id: str = "default"):
         """Clear conversation memory"""
-        if session_id in self.store:
-            self.store[session_id] = ChatMessageHistory()
+        self.memory_manager.clear_session(session_id)
     
     def get_memory_info(self, session_id: str = "default") -> dict:
         """Get memory information"""
+        stats = self.memory_manager.get_memory_stats(session_id)
         session_history = self._get_session_history(session_id)
         return {
-            "message_count": len(session_history.messages),
+            "message_count": stats.message_count,
+            "total_tokens": stats.total_tokens,
+            "memory_size_bytes": stats.memory_size_bytes,
+            "first_message_time": stats.first_message_time,
+            "last_message_time": stats.last_message_time,
             "messages": [msg.content for msg in session_history.messages[-10:]]
         }
 

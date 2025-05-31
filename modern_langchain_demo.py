@@ -22,7 +22,10 @@ from langchain.agents import create_tool_calling_agent, AgentExecutor
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.chat_history import BaseChatMessageHistory
 from langchain_core.runnables.history import RunnableWithMessageHistory
-from langchain_community.chat_message_histories import ChatMessageHistory
+
+# Import the new memory manager and tools
+from memory_manager import MemoryManager, create_memory_manager
+from memory_tools import create_basic_memory_info_tool
 
 # Load environment variables
 load_dotenv()
@@ -56,7 +59,10 @@ class ModernMemoryAgent:
             }
         )
         
-        # Setup tools
+        # Setup memory using the new memory manager first
+        self.memory_manager = create_memory_manager(store_type="memory")
+        
+        # Setup tools (now that memory_manager is available)
         self.tools = self._create_tools()
         
         # Setup prompt template
@@ -79,13 +85,9 @@ class ModernMemoryAgent:
         self.agent = create_tool_calling_agent(self.llm, self.tools, self.prompt)
         self.agent_executor = AgentExecutor(agent=self.agent, tools=self.tools, verbose=True)
         
-        # Setup memory
-        self.store = {}
-        self.agent_with_chat_history = RunnableWithMessageHistory(
-            self.agent_executor,
-            self._get_session_history,
-            input_messages_key="input",
-            history_messages_key="chat_history",
+        # Create runnable with chat history
+        self.agent_with_chat_history = self.memory_manager.create_runnable_with_history(
+            self.agent_executor
         )
         
         print("✅ Modern LangChain agent initialized successfully!")
@@ -112,20 +114,14 @@ class ModernMemoryAgent:
             """Get the current date and time."""
             return f"Current time: {datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
         
-        @tool
-        def memory_info() -> str:
-            """Get information about the conversation memory."""
-            session_history = self._get_session_history("default")
-            message_count = len(session_history.messages)
-            return f"Conversation memory contains {message_count} messages"
+        # Create memory info tool using the memory manager
+        memory_info = create_basic_memory_info_tool(self.memory_manager)
         
         return [calculator, get_current_time, memory_info]
     
     def _get_session_history(self, session_id: str) -> BaseChatMessageHistory:
-        """Get or create session history"""
-        if session_id not in self.store:
-            self.store[session_id] = ChatMessageHistory()
-        return self.store[session_id]
+        """Get or create session history - delegated to memory manager"""
+        return self.memory_manager.get_session_history(session_id)
     
     def chat(self, message: str, session_id: str = "default") -> str:
         """Send a message to the agent and get a response"""
@@ -143,17 +139,20 @@ class ModernMemoryAgent:
     
     def clear_memory(self, session_id: str = "default") -> str:
         """Clear conversation memory"""
-        if session_id in self.store:
-            self.store[session_id] = ChatMessageHistory()
+        self.memory_manager.clear_session(session_id)
         return "Memory cleared!"
     
     def show_memory(self, session_id: str = "default") -> str:
         """Show conversation memory"""
         session_history = self._get_session_history(session_id)
+        stats = self.memory_manager.get_memory_stats(session_id)
+        
         if not session_history.messages:
             return "No conversation history yet."
         
-        result = "Conversation History:\n"
+        result = f"Conversation History (Session: {session_id}):\n"
+        result += f"📊 Stats: {stats.message_count} messages, {stats.total_tokens} tokens, {stats.memory_size_bytes} bytes\n\n"
+        
         for i, msg in enumerate(session_history.messages[-10:], 1):  # Show last 10 messages
             if isinstance(msg, HumanMessage):
                 role = "You"
